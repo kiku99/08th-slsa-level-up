@@ -84,6 +84,15 @@
       <br />
       <sub>스터디원</sub>
     </td>
+    <td align="center">
+      <a href="https://github.com/ori5r2">
+        <img src="https://avatars.githubusercontent.com/u/96720326?v=4" width="100px;" alt="ori5r2"/>
+        <br />
+        <sub><b>노민주</b></sub>
+      </a>
+      <br />
+      <sub>스터디원</sub>
+    </td>
   </tr>
 </table>
 

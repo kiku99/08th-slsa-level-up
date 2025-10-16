@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo-app
+  labels:
+    app: demo
+    sbom-verified: "true"
+spec:
+  containers:
+  - name: app
+    image: index.docker.io/kiku99/slsa:v1
+    imagePullPolicy: IfNotPresent

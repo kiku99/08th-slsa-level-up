@@ -1,0 +1,18 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-sbom-label
+spec:
+  validationFailureAction: enforce
+  rules:
+  - name: require-sbom-verified-label
+    match:
+      resources:
+        kinds:
+        - Pod
+    validate:
+      message: "Pod must be labeled with sbom-verified=true before deployment."
+      pattern:
+        metadata:
+          labels:
+            sbom-verified: "true"
