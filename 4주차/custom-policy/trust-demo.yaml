@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: trust-demo-app
+  labels:
+    app: trust-demo
+    sbom-verified: "true"
+spec:
+  containers:
+  - name: app
+    image: index.docker.io/ssoxong/slsa:v1   # latest 대신 명시적 태그 사용
+    imagePullPolicy: IfNotPresent
+    securityContext:
+      runAsNonRoot: true
+      privileged: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+          - ALL
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "128Mi"
+      limits:
+        cpu: "200m"
+        memory: "256Mi"
+  hostNetwork: false
+  hostPID: false
+  hostIPC: false

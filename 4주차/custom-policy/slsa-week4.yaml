@@ -1,0 +1,140 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-run-as-nonroot
+spec:
+  validationFailureAction: enforce
+  background: true
+  rules:
+    - name: run-as-non-root
+      match:
+        resources:
+          kinds:
+            - Pod
+            - Deployment
+            - DaemonSet
+            - StatefulSet
+      validate:
+        message: "Containers must set securityContext.runAsNonRoot=true."
+        foreach:
+        - list: "request.object.spec.containers"
+          pattern:
+            securityContext:
+              runAsNonRoot: true
+
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-readonly-rootfs
+spec:
+  validationFailureAction: enforce
+  background: true
+  rules:
+    - name: readonly-rootfs
+      match:
+        resources:
+          kinds:
+            - Pod
+            - Deployment
+            - DaemonSet
+            - StatefulSet
+      validate:
+        message: "Containers must set securityContext.readOnlyRootFilesystem=true."
+        foreach:
+        - list: "request.object.spec.containers"
+          pattern:
+            securityContext:
+              readOnlyRootFilesystem: true
+
+
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-drop-all-capabilities
+spec:
+  validationFailureAction: enforce
+  background: true
+  rules:
+    - name: drop-all-capabilities
+      match:
+        resources:
+          kinds:
+            - Pod
+            - Deployment
+            - DaemonSet
+            - StatefulSet
+      validate:
+        message: "Containers must explicitly drop all capabilities (drop: [\"ALL\"])."
+        foreach:
+        - list: "request.object.spec.containers"
+          anyPattern:
+          - securityContext:
+              capabilities:
+                drop:
+                  - "ALL"
+          -
+            not:
+              securityContext:
+                capabilities:
+                  drop:
+                    - "ALL"
+
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: disallow-privileged-and-host-access
+spec:
+  validationFailureAction: enforce
+  background: true
+  rules:
+    - name: deny-privileged
+      match:
+        resources:
+          kinds:
+            - Pod
+            - Deployment
+            - DaemonSet
+            - StatefulSet
+      validate:
+        message: "Privileged containers and host namespace access are disallowed."
+        anyPattern:
+        - spec:
+            containers:
+              - securityContext:
+                  privileged: false
+        - spec:
+            hostNetwork: false
+            hostPID: false
+            hostIPC: false
+
+
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-resources
+spec:
+  validationFailureAction: enforce
+  background: true
+  rules:
+    - name: resources-must-be-set
+      match:
+        resources:
+          kinds:
+            - Pod
+            - Deployment
+            - DaemonSet
+            - StatefulSet
+      validate:
+        message: "Containers must set CPU/memory requests and limits."
+        foreach:
+        - list: "request.object.spec.containers"
+          pattern:
+            resources:
+              requests:
+                cpu: "?*"
+                memory: "?*"
+              limits:
+                cpu: "?*"
+                memory: "?*"
+
+---

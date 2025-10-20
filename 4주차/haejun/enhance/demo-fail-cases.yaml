@@ -1,0 +1,88 @@
+---
+# 테스트 1: Root 사용자로 실행 시도 (실패 예상)
+apiVersion: v1
+kind: Pod
+metadata:
+  name: fail-root-user
+  labels:
+    app: test
+    sbom-verified: "true"
+spec:
+  hostNetwork: false
+  hostPID: false
+  hostIPC: false
+  containers:
+  - name: app
+    image: index.docker.io/nginx:1.25
+    # securityContext 없음 - runAsNonRoot 위반!
+    resources:
+      limits:
+        memory: "128Mi"
+        cpu: "200m"
+
+---
+# 테스트 2: 리소스 제한 없음 (실패 예상)
+apiVersion: v1
+kind: Pod
+metadata:
+  name: fail-no-limits
+  labels:
+    app: test
+    sbom-verified: "true"
+spec:
+  hostNetwork: false
+  hostPID: false
+  hostIPC: false
+  containers:
+  - name: app
+    image: index.docker.io/nginx:1.25
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 1000
+    # resources 없음 - 리소스 제한 위반!
+
+---
+# 테스트 3: 호스트 네트워크 공유 (실패 예상)
+apiVersion: v1
+kind: Pod
+metadata:
+  name: fail-host-network
+  labels:
+    app: test
+    sbom-verified: "true"
+spec:
+  hostNetwork: true  # 호스트 네임스페이스 공유 위반!
+  containers:
+  - name: app
+    image: index.docker.io/nginx:1.25
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 1000
+    resources:
+      limits:
+        memory: "128Mi"
+        cpu: "200m"
+
+---
+# 테스트 4: latest 태그 사용 (실패 예상)
+apiVersion: v1
+kind: Pod
+metadata:
+  name: fail-latest-tag
+  labels:
+    app: test
+    sbom-verified: "true"
+spec:
+  hostNetwork: false
+  hostPID: false
+  hostIPC: false
+  containers:
+  - name: app
+    image: index.docker.io/nginx:latest  # latest 태그 위반!
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 1000
+    resources:
+      limits:
+        memory: "128Mi"
+        cpu: "200m"

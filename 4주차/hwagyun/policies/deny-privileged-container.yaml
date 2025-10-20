@@ -1,0 +1,26 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: disallow-privileged-containers
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: privileged-containers
+      match:
+        resources:
+          kinds:
+            - Pod
+      validate:
+        message: "Privileged containers are not allowed. Set securityContext.privileged to false."
+        pattern:
+          spec:
+            =(containers): # 컨테이너 목록의 모든 항목에 대해 검사
+              - =(securityContext): # securityContext의 아래 값이 다음과 같은지 검사
+                  =(privileged): "false"
+            =(initContainers): # 컨테이너 목록의 모든 항목에 대해 검사
+              - =(securityContext):
+                  =(privileged): "false"
+            =(ephemeralContainers): # 컨테이너 목록의 모든 항목에 대해 검사
+              - =(securityContext):
+                  =(privileged): "false"

@@ -1,0 +1,69 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: secure-deploy-policies
+spec:
+  validationFailureAction: enforce
+  background: true
+  rules:
+
+  # [보안] : root 금지, privileged=false
+  # 컨테이너에 root, privileged 등 높은 권한 부여 시, 호스트에 대한 권한도 획득 가능
+  - name: disallow-root-and-privileged
+    match:
+      resources:
+        kinds:
+          - Pod
+    validate:
+      message: "Pods must not run as root, privileged."
+      pattern:
+        spec:
+          securityContext:
+            runAsNonRoot: true
+          containers:
+            - securityContext:
+                privileged: false
+                runAsNonRoot: true
+
+  # [무결성] : latest tag 금지 + 허용된 레지스트리만 사용
+  # 취약한 레지스트리 차단 가능, latest 태그는 계속해서 갱신되기 때문에 안정성 보장 불가
+  - name: enforce-image-integrity
+    match:
+      resources:
+        kinds:
+          - Pod
+    preconditions:
+      all:
+        - key: "{{ request.object.spec.containers[].image }}"
+          operator: AnyNotIn
+          value:
+            - "*:latest"
+    validate:
+      message: "Images must not use 'latest' tag and must come from allowed registries (ghcr.io or index.docker.io)."
+      anyPattern:
+        - spec:
+            containers:
+              - image: "*ghcr.io*"
+        - spec:
+            containers:
+              - image: "*index.docker.io*"
+
+  # [자원 관리] : resource requests/limits 필수
+  # 자원의 요청/제한을 걸어두지 않을 시, 엄격한 자원 관리가 힘들어 클러스터 안정성 보장에 어려움
+  - name: require-resource-limits
+    match:
+      resources:
+        kinds:
+          - Pod
+    validate:
+      message: "All containers must specify resource requests and limits for CPU and memory."
+      pattern:
+        spec:
+          containers:
+            - resources:
+                limits:
+                  memory: "?*"
+                  cpu: "?*"
+                requests:
+                  memory: "?*"
+                  cpu: "?*"

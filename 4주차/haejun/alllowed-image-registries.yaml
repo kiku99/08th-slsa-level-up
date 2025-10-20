@@ -1,0 +1,21 @@
+# 두 번째 정책: 허용된 레지스트리(공급망)에서만 이미지를 풀 수 있게 제한한다.
+
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: allowed-image-registries
+spec:
+  validationFailureAction: enforce
+  rules:
+  - name: only-allow-registered-registries
+    match:
+      resources:
+        kinds:
+        - Pod
+    anyPattern:
+    - spec:
+        containers:
+        - image: "?*index.docker.io?*"
+    - spec:
+        containers:
+        - image: "?*ghcr.io?*"

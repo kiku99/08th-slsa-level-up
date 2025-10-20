@@ -1,0 +1,20 @@
+# 첫 번째 정책: 모든 pod는 sbom-verified=true 라벨(또는 어노테이션)을 가져야 한다.
+
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-sbom-label
+spec:
+  validationFailureAction: enforce
+  rules:
+  - name: require-sbom-verified-label
+    match:
+      resources:
+        kinds:
+        - Pod
+    validate:
+      message: "Pod must be labeled with sbom-verified=true berfore deployment."
+      pattern:
+        metadata:
+          labels:
+            sbom-verified: "true"

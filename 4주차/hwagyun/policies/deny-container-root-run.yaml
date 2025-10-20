@@ -1,0 +1,29 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-run-as-non-root
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: run-as-non-root
+      match:
+        any:
+        - resources:
+            kinds:
+              - Pod
+      validate:
+        message: "Running as root is not allowed. Set securityContext.runAsNonRoot to true."
+        pattern:
+          spec:
+            securityContext: # 파드 레벨의 securityContext
+              runAsNonRoot: true # runAsNonRoot: true가 설정되어야 합니다.
+            =(containers): # 컨테이너 대상 조건
+              - securityContext:
+                  runAsNonRoot: true
+            =(initContainers): # 초기화 컨테이너 대상 조건
+              - securityContext:
+                  runAsNonRoot: true
+            =(ephemeralContainers): # 임시 컨테이너 대상 조건
+              - securityContext:
+                  runAsNonRoot: true

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo-app
+  labels:
+    app: demo
+    sbom-verified: "true"
+spec:
+  containers:
+  - name: app
+    image: ghcr.io/hodu26/hello-slsa:v1
+    imagePullPolicy: IfNotPresent
+  imagePullSecrets:
+  - name: regcred

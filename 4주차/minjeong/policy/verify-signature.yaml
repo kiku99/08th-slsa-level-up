@@ -1,0 +1,52 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: verify-signature
+
+spec:
+  # 검증 실패 시 Pod 생성 차단
+  validationFailureAction: Enforce
+  # Webhook 실패 시 요청 거부
+  failurePolicy: Fail
+  # 기존 리소스 스캔 비활성화
+  background: false
+  
+  rules:
+  - name: check-image-signature
+
+    # 적용 대상: Pod 생성 요청
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+    
+    # 제외: 시스템 네임스페이스
+    exclude:
+      any:
+      - resources:
+          namespaces:
+          - kube-system
+          - kube-public
+          - kube-node-lease
+          - kyverno
+    
+    # 이미지 검증
+    verifyImages:
+    - imageReferences:
+      - "ghcr.io/mjttong:*"
+      
+      attestors:
+      - entries:
+        - keyless:
+            url: https://fulcio.sigstore.dev
+            issuer: "https://token.actions.githubusercontent.com"
+            subject: "repo:mjttong/slsa-study/.*"
+            rekor:
+              url: https://rekor.sigstore.dev
+      
+      # 태그를 digest로 자동 변환
+      mutateDigest: true
+      
+      # 서명 필수
+      required: true

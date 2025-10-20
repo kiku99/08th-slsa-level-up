@@ -1,0 +1,47 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: verify-sbom
+
+spec:
+  validationFailureAction: Enforce
+  failurePolicy: Fail
+  background: false
+  
+  rules:
+  - name: check-sbom-attestation
+    
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+    
+    exclude:
+      any:
+      - resources:
+          namespaces:
+          - kube-system
+          - kube-public
+          - kube-node-lease
+          - kyverno
+    
+    verifyImages:
+    - imageReferences:
+      - "ghcr.io/mjttong:*"
+      
+      # SBOM Attestation 검증
+      attestations:
+      
+      # CycloneDX SBOM 형식
+      - predicateType: https://cyclonedx.org/schema
+        
+        # SBOM도 동일한 파이프라인에서 생성되었는지 검증
+        attestors:
+        - entries:
+          - keyless:
+              url: https://fulcio.sigstore.dev
+              issuer: "https://token.actions.githubusercontent.com"
+              subject: "repo:mjttong/slsa-study/.*"
+              rekor:
+                url: https://rekor.sigstore.dev

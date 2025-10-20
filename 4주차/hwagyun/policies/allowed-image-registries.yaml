@@ -1,0 +1,19 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: allowed-image-registries
+spec:
+  validationFailureAction: enforce
+  rules:
+  - name: only-allow-registered-registries
+    match:
+      resources:
+        kinds:
+        - Pod
+    anyPattern:
+    - spec:
+        containers:
+        - image: "?*index.docker.io?*"
+    - spec:
+        containers:
+        - image: "?*ghcr.io?*"

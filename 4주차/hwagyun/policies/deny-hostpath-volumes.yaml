@@ -1,0 +1,31 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: restrict-hostpath-to-allowed-list
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: allowed-hostpath-volumes
+      match:
+        any:
+        - resources:
+            kinds:
+              - Pod
+      validate:
+        message: "A HostPath volume is used which is not in the allowed list. Please use an approved path."
+        foreach:
+        - list: "request.object.spec.volumes"
+          preconditions:
+            all:
+              - key: "{{element.hostPath}}"
+                operator: NotEquals
+                value: ""
+          deny:
+            conditions:
+              any:
+                - key: "{{element.hostPath.path}}"
+                  operator: AnyNotIn
+                  value:
+                    - "/var/log/pods"
+                    - "/mnt/data"

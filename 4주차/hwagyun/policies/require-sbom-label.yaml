@@ -1,0 +1,18 @@
+apiVersion: kyverno.io/v1 # kyverno.io/v1를 통해 적용되는 정책
+kind: ClusterPolicy # Cluster 정책 설정
+metadata:
+  name: require-sbom-label # 정책명: "require-sbom-label"
+spec:
+  validationFailureAction: enforce # 인증실패 시 동작방식: enforce (= 배포작업 중지)
+  rules: # 정책 내 규칙 설정
+  - name: require-sbom-verified-label # 규칙명: "require-sbom-verified-label"
+    match: 
+      resources:
+        kinds:
+        - Pod # 리소스 종류가 'Pod'인 경우 적용
+    validate: # 검증작업 명세
+      message: "Pod must be labeled with sbom-verified=true before deployment."
+      pattern:
+        metadata:
+          labels: # metadata.labels에 아래 값이 담겨있는지 확인:
+            sbom-verified: "true"
