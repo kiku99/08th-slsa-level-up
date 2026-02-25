@@ -1,0 +1,23 @@
+# 네 번째 정책: 서비스 포트 범위 제한
+
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: restrict-service-ports
+spec:
+  validationFailureAction: enforce
+  rules:
+    - name: validate-service-ports
+      match:
+        resources:
+          kinds:
+            - Service
+      validate:
+        message: "Service ports must be between 3000 and 9000."
+        foreach:
+          - list: "request.object.spec.ports"
+            deny:
+              conditions:
+                any:
+                  - key: "{{ element.port }}"
+                    notInRange: [3000, 9000]

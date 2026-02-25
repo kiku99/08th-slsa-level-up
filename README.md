@@ -27,7 +27,7 @@
         <sub><b>김재현</b></sub>
       </a>
       <br />
-      <sub>스터디 리더</sub>
+      <sub>스터디리더</sub>
     </td>
     <td align="center">
       <a href="https://github.com/KimYe-Ji">
@@ -121,11 +121,11 @@
 | **Week 1** | 공급망 보안 개념 스터디 | • 오리엔테이션<br>• 공급망 공격 사례 소개<br>• SLSA Level 개요<br>• SBOM & Attestation | • Demo 어플리케이션 구현<br>• Cosign 설치<br>• 이미지 서명 및 검증 |
 | **Week 2** | 이미지 서명 파이프라인 | • Sigstore<br>• Github Actions | • 이미지 서명 파이프라인 구축<br>• 이미지 서명 검증 |
 | **Week 3** | 쿠버네티스 인증 인가 | • Kubernetes 기초<br>• Kubernetes 요청 처리 과정<br>• Kubernetes 인증/인가<br>• RBAC | • Kubernetes 클러스터 설치<br>• RBAC 적용 |
-| **Week 4** | SBOM & 정책 검증 |  | |
+| **Week 4** | SBOM & 정책 검증 | • SBOM의 개념과 필요성 이해<br>• OPA Gatekeeper & Kyverno 이해  | • Trivy를 활용해 실제 컨테이너 이미지에서 SBOM 생성<br>• Kyverno를 활용해 정책 기반 배포 검증 |
 | **Week 5** | 추석 연휴 |  | |
-| **Week 6** | k8s 서명 검증 게이트 |  | |
-| **Week 7** | 공격 시뮬레이션 & 대응 |  | |
-| **Week 8** | Demo Day |  | |
+| **Week 6** | k8s 서명 검증 게이트 | • 이미지 서명 게이트 이해<br>• Kubernetes 환경에서 이미지 서명을 검증하는 Admission Controller 이해  | • Cosign + Kyverno를 이용해 서명된 이미지만 배포 가능한 환경을 구현 |
+| **Week 7** | 공격 시뮬레이션 & 대응 | • 공급망 공격 벡터의 이해 | • 공급망 공격 실습<br>• 공급망 공격에 대한 방어 실습<br>• 안전한 배포 파이프라인 구축 실습 |
+| **Week 8** | Celebration Day | • 시뮬레이션 리뷰<br>• 프로젝트 회고 및 마무리  | |
 
 
 ## 📖 학습 자료
